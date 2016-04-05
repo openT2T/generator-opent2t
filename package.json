@@ -56,5 +56,6 @@
   "bugs": {
     "url": "https://github.com/openT2T/generator-opent2t/issues"
   },
-  "homepage": "https://github.com/openT2T/generator-opent2t#readme"
+  "homepage": "https://github.com/openT2T/generator-opent2t#readme",
+  "description": "Yeoman generator for an Open Translators to Things translator"
 }

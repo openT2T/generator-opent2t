@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {},
+  "devDependencies": {
+<%- props.devDependencies %>
+  },
   "author": "",
   "license": "MIT"
 }

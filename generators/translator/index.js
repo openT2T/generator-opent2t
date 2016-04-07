@@ -11,6 +11,7 @@ var _parsedSchema = '';
 var _parsedOnboarding = '';
 var _stubFunctions = '';
 var _stubOnboardingArgs = '';
+var _devDependencies = '';
 var _globals = '';
 
 // Gets schema file IDs and paths from a local repo, given a path to the repo
@@ -134,6 +135,11 @@ module.exports = yeoman.generators.Base.extend({
         }
       }
 
+      // Create standard dev dependencies used by the CLI
+      _devDependencies =
+        '    "async": "~1.5.2",\n' +
+        '    "optimist": "0.6.1"';
+
       // Next, Parse onboarding to generate stub onboarding values
       var onboardingFile = fs.readFileSync(localProps.onboardingFilePath);
       parser.parseString(onboardingFile, function(err, result) {
@@ -165,6 +171,7 @@ module.exports = yeoman.generators.Base.extend({
 
   writing: function() {
     this.props.stubFunctions = _stubFunctions;
+    this.props.devDependencies = _devDependencies;
     this.props.stubOnboardingArgs = _stubOnboardingArgs;
     this.props.globals = _globals;
 
@@ -182,6 +189,11 @@ module.exports = yeoman.generators.Base.extend({
     this.fs.copyTpl(
       this.templatePath('js/package.json.template'),
       this.destinationPath('dist/js/package.json'),
+      { props: this.props }
+    );
+    this.fs.copyTpl(
+      this.templatePath('js/test.js.template'),
+      this.destinationPath('dist/js/test.js'),
       { props: this.props }
     );
 

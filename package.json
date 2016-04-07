@@ -1,6 +1,6 @@
 {
   "name": "generator-opent2t",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "files": [
     "generators/app",
     "generators/translator"

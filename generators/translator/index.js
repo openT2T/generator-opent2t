@@ -122,8 +122,8 @@ module.exports = yeoman.generators.Base.extend({
           // Create a stub function per method in the schema
           _stubFunctions +=
             '  ' + methods[i].$.name + ': function(' + argString + ') {\n' +
-            '    console.log(\'' + methods[i].$.name + ' called.\');\n'
-          '  }';
+            '    console.log(\'' + methods[i].$.name + ' called.\');\n' +
+            '  }';
 
           if (i < methods.length - 1) {
             _stubFunctions += ',\n\n';

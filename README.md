@@ -52,3 +52,6 @@ Yeoman has a heart of gold. He&#39;s a person with feelings and opinions, but he
 
 [npm-image]: https://badge.fury.io/js/generator-opent2t.svg
 [npm-url]: https://npmjs.org/package/generator-opent2t
+
+## Code of Conduct
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.

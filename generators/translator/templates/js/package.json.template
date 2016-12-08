@@ -1,11 +1,29 @@
 {
-  "name": "<%= props.packageName %>",
-  "version": "1.0.0",
-  "description": "",
-  "dependencies": {},
-  "devDependencies": {
-<%- props.devDependencies %>
-  },
-  "author": "",
-  "license": "MIT"
+    "name": "<%- props.packageName %>",
+    "version": "0.2.0",
+    "description": "<%- props.hub.name %> <%- props.schema.name %>",
+    "homepage": "http://opentranslatorstothings.org",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/opent2t/translators.git"
+    },
+    "main": "thingTranslator.js",
+    "license": "MIT",
+    "scripts": {
+        "test": "ava tests/test.js",
+        "unittest": "ava tests/unitTests.js"
+    },
+    "ava": {
+        "files": [
+            "tests/*.js"
+        ]
+    },
+    "dependencies": {
+        "<%- props.hubPackageName %>": "^1.2.0"
+    },
+    "devDependencies": {
+        "opent2t": "*",
+        "<%- props.hubPackageName %>": "^1.2.0",
+        "ava": "^0.15.2"
+    }
 }

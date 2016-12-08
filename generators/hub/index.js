@@ -8,16 +8,12 @@ module.exports = yeoman.Base.extend({
   constructor: function () {
     yeoman.Base.apply(this, arguments);
     this.option('hub');
-    this.option('schema');
 
     this.props = {
-      hub: this.options.hub,
-      schema: this.options.schema
+      hub: this.options.hub
     };
 
-    var deviceName = this.props.schema.value.replace('org.opent2t.sample.', '').replace('.superpopular', '');
-    this.props.packageName = packagePrefix + this.props.hub.value + '-' + deviceName.toLowerCase();
-    this.props.hubPackageName = packagePrefix + this.props.hub.value + '-hub';
+    this.props.packageName = packagePrefix + this.props.hub.value.toLowerCase() + '-hub';
   },
 
   prompting: function () {
@@ -25,7 +21,7 @@ module.exports = yeoman.Base.extend({
       {
         type: 'input',
         name: 'packageName',
-        message: 'What is the name of the translator node package?',
+        message: 'What is the name of the hub node package?',
         default: this.props.packageName,
         validate: function (input) {
           var pass = input.toLowerCase().startsWith(packagePrefix);
@@ -44,23 +40,28 @@ module.exports = yeoman.Base.extend({
 
   writing: function () {
     this.fs.copyTpl(
-      this.templatePath('js/thingTranslator.js.template'),
-      this.destinationPath('dist/js/thingTranslator.js'),
+      this.templatePath('js/common.js.template'),
+      this.destinationPath('dist-hub/js/common.js'),
       {props: this.props}
     );
     this.fs.copyTpl(
       this.templatePath('js/manifest.xml.template'),
-      this.destinationPath('dist/js/manifest.xml'),
+      this.destinationPath('dist-hub/js/manifest.xml'),
       {props: this.props}
     );
     this.fs.copyTpl(
       this.templatePath('js/package.json.template'),
-      this.destinationPath('dist/js/package.json'),
+      this.destinationPath('dist-hub/js/package.json'),
       {props: this.props}
     );
     this.fs.copyTpl(
       this.templatePath('js/README.md.template'),
-      this.destinationPath('dist/js/README.md'),
+      this.destinationPath('dist-hub/js/README.md'),
+      {props: this.props}
+    );
+    this.fs.copyTpl(
+      this.templatePath('js/thingTranslator.js.template'),
+      this.destinationPath('dist-hub/js/thingTranslator.js'),
       {props: this.props}
     );
   }

@@ -1,0 +1,12 @@
+{   "base_state" :
+    {   "data" :
+        {
+            "object_type" : "Mock Type",
+            "object_id" : "Mock Id",
+            "name" : "Mock Name"
+        }
+    },
+    "test_data" :
+    {
+    }
+}

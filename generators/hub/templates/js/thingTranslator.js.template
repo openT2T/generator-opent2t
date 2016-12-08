@@ -1,0 +1,17 @@
+"use strict";
+
+// This code uses ES2015 syntax that requires at least Node.js v4.
+// For Node.js ES2015 support details, reference http://node.green/
+
+var request = require('request-promise');
+var OpenT2T = require('opent2t').OpenT2T;
+
+/**
+* This translator class implements the "Hub" interface.
+*/
+class Translator {
+    constructor(accessToken) {
+    }
+}
+
+module.exports = Translator;

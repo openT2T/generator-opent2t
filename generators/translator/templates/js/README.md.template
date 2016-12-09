@@ -1,5 +1,5 @@
-# <%- props.hub.name %> <%- props.schema.name %> Translator
-Translator for <%- props.hub.name %> <%- props.schema.name %>
+# <%- props.hubFriendlyName %> <%- props.deviceFriendlyName %> Translator
+Translator for <%- props.hubFriendlyName %> <%- props.deviceFriendlyName %>
 
 ## Setup Your Hardware
 

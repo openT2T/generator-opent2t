@@ -1,5 +1,5 @@
-# <%- props.hub.name %> Hub translator
-Translator for <%- props.hub.name %> hub
+# <%- props.hubFriendlyName %> Hub translator
+Translator for <%- props.hubFriendlyName %> hub
 
 ## Setup Your Hardware
 

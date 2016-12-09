@@ -7,13 +7,15 @@ const packagePrefix = 'opent2t-translator-com-';
 module.exports = yeoman.Base.extend({
   constructor: function () {
     yeoman.Base.apply(this, arguments);
-    this.option('hub');
+    this.option('hubName');
+    this.option('hubFriendlyName');
 
     this.props = {
-      hub: this.options.hub
+      hubName: this.options.hubName,
+      hubFriendlyName: this.options.hubFriendlyName
     };
 
-    this.props.packageName = packagePrefix + this.props.hub.value.toLowerCase() + '-hub';
+    this.props.packageName = packagePrefix + this.props.hubName.toLowerCase() + '-hub';
   },
 
   prompting: function () {

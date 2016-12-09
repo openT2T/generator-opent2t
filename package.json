@@ -19,7 +19,8 @@
   "dependencies": {
     "yeoman-generator": "^0.23.0",
     "chalk": "^1.0.0",
-    "yosay": "^1.0.0"
+    "yosay": "^1.0.0",
+    "raml-1-parser": "^1.1.8"
   },
   "devDependencies": {
     "yeoman-test": "^1.0.0",

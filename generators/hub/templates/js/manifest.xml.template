@@ -6,7 +6,7 @@
     <schema id="oic.baseResource" type="OCF" />
   </schemas>
   <!-- associated onboarding module -->
-  <onboarding id="">
+  <onboarding id="<%- props.onboardingPackage %>">
     <onboardflow name="getUserInput">
     </onboardflow>
   </onboarding>

@@ -1,13 +1,13 @@
 {
-  "name": "opent2t-device-winkhub",
+  "name": "opent2t-device-<%- props.hubName %>hub",
   "version": "0.1.1",
-  "description": "Wink hub device",
+  "description": "<%- props.hubFriendlyName %> hub device",
   "homepage": "http://opentranslatorstothings.org",
   "repository": {
     "type": "git",
     "url": "https://github.com/opent2t/translators.git"
   },
-  "main": "mockWinkHub.js",
+  "main": "mock<%- props.capHubName %>Hub.js",
   "license": "MIT",
   "dependencies": {
     "opent2t": "*",

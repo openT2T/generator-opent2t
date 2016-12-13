@@ -66,9 +66,18 @@ class Translator {
         console.log('<%- props.hubFriendlyName %> <%- props.deviceFriendlyName %> initializing...Done');
     }
 
-    <% for (method in props.schemaMethods) { %>
-    <%= props.schemaMethods[method] %>() {
+    getDeviceResource(deviceId, resourceId) {
         // Add implementation
+    }
+
+    postDeviceResource(deviceId, resourceId, payload) {
+        // Add implementation
+    }
+
+    <% for (method in props.schemaMethods) { %>
+    <%= props.schemaMethods[method].name %>(<%= props.schemaMethods[method].params %>) {
+        <%= props.schemaMethods[method].callee %>
+    }
     <% } %>
 }
 

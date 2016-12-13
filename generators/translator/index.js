@@ -12,7 +12,26 @@ function getSchemaMethods(ramlPath) {
 
   function addMethod(methodName) {
     if(ramlMethods.indexOf(methodName) === -1) {
-      ramlMethods.push(methodName);
+      var params = '';
+      var callee = '// Add implementation';
+      if(methodName === 'get') {
+        params = 'extend, payload'
+      } 
+      
+      if(methodName.startsWith('getDevices') || methodName.startsWith('postDevices')) {
+        if(methodName.startsWith('getDevices')) {
+          params = 'deviceId';
+          let resource = methodName.replace('getDevices', '');
+          resource = resource.charAt(0).toLowerCase() + resource.slice(1);
+          callee = 'return this.getDeviceResource(deviceId, \'' + resource + '\'");';
+        } else {
+          params = 'deviceId, payload';
+          let resource = methodName.replace('postDevices', '');
+          resource = resource.charAt(0).toLowerCase() + resource.slice(1);
+          callee = 'return this.postDeviceResource(deviceId, \'' + resource + '\', payload);';
+        }
+      }
+      ramlMethods.push({name: methodName, params: params, callee: callee});
     }
   }
 
@@ -29,7 +48,7 @@ function getSchemaMethods(ramlPath) {
       var resourceParts = current.completeRelativeUri().substring(1).split("/");
       var suffix = "";
 
-      resourceParts.forEach(part => {
+      resourceParts.forEach(part => {{}
         if(!part.startsWith("{") && !part.startsWith("?")){
           suffix += part.charAt(0).toUpperCase() + part.slice(1);
         }
@@ -80,24 +99,15 @@ module.exports = yeoman.Base.extend({
     }
 
     var deviceName = this.props.schema.value.replace('org.opent2t.sample.', '').replace('.superpopular', '');
+    this.props.deviceNameLow = deviceName.toLowerCase();
     this.props.deviceFriendlyName = deviceName.charAt(0).toUpperCase() + deviceName.slice(1);
-    this.props.packageName = packagePrefix + hubName + '-' + deviceName.toLowerCase();
+    this.props.deviceName = deviceName;
+    this.props.packageName = packagePrefix + hubName + '-' + this.props.deviceNameLow;
+    this.props.dirName = 'com.' + hubName + '.' + this.props.deviceNameLow;    this.props.
     this.props.hubPackageName = packagePrefix + hubName + '-hub';
-
-    //console.log("ROOT: " + this.options.repoRoot);
+    
     var ramlPath = path.join(this.options.repoRoot, this.props.schema.value, this.props.schema.value + '.raml');
-    // console.log("RP: " + ramlPath);
-    // if(fs.existsSync(ramlPath)) {
-    //     console.log("EXISTS");
-    // }
-    // else {
-    //     console.log("NOT EXISTS");
-    // }
-
     this.props.schemaMethods = getSchemaMethods(ramlPath);
-    // schemaMethods.forEach(method => {
-    //   console.log(method);
-    // });
   },
 
   prompting: function () {
@@ -138,24 +148,35 @@ module.exports = yeoman.Base.extend({
   },
 
   writing: function () {
+    var destRoot = 'dest/' + this.props.dirName;
     this.fs.copyTpl(
       this.templatePath('js/thingTranslator.js.template'),
-      this.destinationPath('dist/js/thingTranslator.js'),
+      this.destinationPath(destRoot + '/js/thingTranslator.js'),
       {props: this.props}
     );
     this.fs.copyTpl(
       this.templatePath('js/manifest.xml.template'),
-      this.destinationPath('dist/js/manifest.xml'),
+      this.destinationPath(destRoot + '/js/manifest.xml'),
       {props: this.props}
     );
     this.fs.copyTpl(
       this.templatePath('js/package.json.template'),
-      this.destinationPath('dist/js/package.json'),
+      this.destinationPath(destRoot + '/js/package.json'),
       {props: this.props}
     );
     this.fs.copyTpl(
       this.templatePath('js/README.md.template'),
-      this.destinationPath('dist/js/README.md'),
+      this.destinationPath(destRoot + '/js/README.md'),
+      {props: this.props}
+    );
+    this.fs.copyTpl(
+      this.templatePath('js/tests/test.js.template'),
+      this.destinationPath(destRoot + '/js/tests/test.js'),
+      {props: this.props}
+    );
+    this.fs.copyTpl(
+      this.templatePath('js/tests/devicedata.json.template'),
+      this.destinationPath(destRoot + '/js/tests/devicedata.json'),
       {props: this.props}
     );
   }

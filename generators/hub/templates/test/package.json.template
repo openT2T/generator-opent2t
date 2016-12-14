@@ -1,13 +1,13 @@
 {
-  "name": "opent2t-device-<%- props.hubName %>hub",
+  "name": "opent2t-device-<%- props.hub.lowerName %>hub",
   "version": "0.1.1",
-  "description": "<%- props.hubFriendlyName %> hub device",
+  "description": "<%- props.hub.friendlyName %> hub device",
   "homepage": "http://opentranslatorstothings.org",
   "repository": {
     "type": "git",
     "url": "https://github.com/opent2t/translators.git"
   },
-  "main": "mock<%- props.capHubName %>Hub.js",
+  "main": "mock<%- props.hub.capName %>Hub.js",
   "license": "MIT",
   "dependencies": {
     "opent2t": "*",

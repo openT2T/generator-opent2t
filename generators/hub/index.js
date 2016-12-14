@@ -8,19 +8,14 @@ const onboardPrefixx = 'org.opent2t.onboarding.';
 module.exports = yeoman.Base.extend({
   constructor: function () {
     yeoman.Base.apply(this, arguments);
-    this.option('hubName');
-    this.option('hubFriendlyName');
-
-    var hubName = this.options.hubName.toLowerCase();
+    this.option('hub');
 
     this.props = {
-      hubName: hubName,
-      hubFriendlyName: this.options.hubFriendlyName
+      hub: this.options.hub
     };
 
-    this.props.packageName = packagePrefix + hubName + '-hub';
-    this.props.onboardingPackage = onboardPrefixx + hubName + 'hub';
-    this.props.capHubName = hubName.charAt(0).toUpperCase() + hubName.slice(1)
+    this.props.packageName = packagePrefix + this.props.hub.lowerName + '-hub';
+    this.props.onboardingPackage = onboardPrefixx + this.props.hub.lowerName + 'hub';
   },
 
   prompting: function () {
@@ -52,7 +47,7 @@ module.exports = yeoman.Base.extend({
   },
 
   writing: function () {
-    var destRoot = 'dest/com.' + this.props.hubName + '.hub';
+    var destRoot = 'dest/com.' + this.props.hub.lowerName + '.hub';
     this.fs.copyTpl(
       this.templatePath('js/common.js.template'),
       this.destinationPath(destRoot + '/js/common.js'),
@@ -85,7 +80,7 @@ module.exports = yeoman.Base.extend({
     );
     this.fs.copyTpl(
       this.templatePath('test/mockHub.js.template'),
-      this.destinationPath(destRoot + '/test/mock' + this.props.capHubName + 'Hub.js'),
+      this.destinationPath(destRoot + '/test/mock' + this.props.hub.capName + 'Hub.js'),
       {props: this.props}
     );
   }

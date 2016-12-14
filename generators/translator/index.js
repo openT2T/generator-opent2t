@@ -82,45 +82,45 @@ module.exports = yeoman.Base.extend({
   constructor: function () {
     yeoman.Base.apply(this, arguments);
     this.option('repoRoot');
-    this.option('hubName');
-    this.option('schema');
-    this.option('hubFriendlyName');
+    this.option('hub');
+    this.option('deviceName');
 
     this.props = {
-      hubName: this.options.hubName,
-      schema: this.options.schema,
-      hubFriendlyName: this.options.hubFriendlyName
+      deviceName: this.options.deviceName,
+      hub: this.options.hub
     };
 
-    var hubName = this.props.hubName;
+    //var hubName = this.props.hubName;
 
-    if (this.props.hubFriendlyName === undefined) {
-      defaultHubName = hubName.charAt(0).toUpperCase() + hubName.slice(1);
-    }
+    // if (this.props.hub.friendlyName === undefined) {
+    //   defaultHubName = hubName.charAt(0).toUpperCase() + hubName.slice(1);
+    // }
 
-    var deviceName = this.props.schema.value.replace('org.opent2t.sample.', '').replace('.superpopular', '');
+    // var deviceName = this.props.schema.value.replace('org.opent2t.sample.', '').replace('.superpopular', '');
+    var deviceName = this.props.deviceName;
+    var hubName = this.props.hub.lowerName;
     this.props.deviceNameLow = deviceName.toLowerCase();
     this.props.deviceFriendlyName = deviceName.charAt(0).toUpperCase() + deviceName.slice(1);
     this.props.deviceName = deviceName;
     this.props.packageName = packagePrefix + hubName + '-' + this.props.deviceNameLow;
-    this.props.dirName = 'com.' + hubName + '.' + this.props.deviceNameLow;    this.props.
+    this.props.dirName = 'com.' + hubName + '.' + this.props.deviceNameLow;
     this.props.hubPackageName = packagePrefix + hubName + '-hub';
-    
-    var ramlPath = path.join(this.options.repoRoot, this.props.schema.value, this.props.schema.value + '.raml');
+    var schema = 'org.opent2t.sample.' + deviceName + '.superpopular';
+    var ramlPath = path.join(this.options.repoRoot, schema, schema + '.raml');
     this.props.schemaMethods = getSchemaMethods(ramlPath);
   },
 
   prompting: function () {
     var prompts = [
-      {
-        when: function () {
-          return defaultHubName !== undefined;
-        },
-        type: 'input',
-        name: 'hubFriendlyName',
-        message: 'What is the friendly name of the hub?',
-        default: defaultHubName
-      },
+      // {
+      //   when: function () {
+      //     return defaultHubName !== undefined;
+      //   },
+      //   type: 'input',
+      //   name: 'hubFriendlyName',
+      //   message: 'What is the friendly name of the hub?',
+      //   default: defaultHubName
+      // },
       {
         type: 'input',
         name: 'deviceFriendlyName',

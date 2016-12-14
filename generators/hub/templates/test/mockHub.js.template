@@ -10,10 +10,10 @@ function verifyPayload(modification, t, args) {
     // Add Implementation
 }
 
-class Mock<%- props.capHubName %>Hub extends MockHub {
+class Mock<%- props.hub.capName %>Hub extends MockHub {
     constructor(initialState) {
         super(initialState, modifyDeviceState, verifyPayload);
     }
 }
 
-module.exports = Mock<%- props.capHubName %>Hub;
+module.exports = Mock<%- props.hub.capName %>Hub;

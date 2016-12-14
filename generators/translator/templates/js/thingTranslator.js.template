@@ -40,30 +40,30 @@ function findResource(schema, di, resourceId) {
 }
 
 /***
- * Converts an OCF platform/resource schema for calls to the <%- props.hubFriendlyName %> API
+ * Converts an OCF platform/resource schema for calls to the <%- props.hub.friendlyName %> API
  */
 function resourceSchemaToProviderSchema(resourceId, resourceSchema) {
     // Add implementation
 }
 
 /**
- * Converts a representation of a platform from the <%- props.hubFriendlyName %> API into an OCF representation.
+ * Converts a representation of a platform from the <%- props.hub.friendlyName %> API into an OCF representation.
  */
 function providerSchemaToPlatformSchema(providerSchema, expand) {
     // Add implementation
 }
 
-// This translator class implements the '<%- props.schema.value %>' interface.
+// This translator class implements the 'org.opent2t.sample.<%- props.deviceName %>.superpopular' interface.
 class Translator {
 
     constructor(deviceInfo) {
-        console.log('<%- props.hubFriendlyName %> <%- props.deviceFriendlyName %> initializing...');
+        console.log('<%- props.hub.friendlyName %> <%- props.deviceFriendlyName %> initializing...');
 
         validateArgumentType(deviceInfo, "deviceInfo", "object");
 
         // Add implementation
 
-        console.log('<%- props.hubFriendlyName %> <%- props.deviceFriendlyName %> initializing...Done');
+        console.log('<%- props.hub.friendlyName %> <%- props.deviceFriendlyName %> initializing...Done');
     }
 
     getDeviceResource(deviceId, resourceId) {

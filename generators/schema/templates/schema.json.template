@@ -1,0 +1,30 @@
+{
+  "id": "http://schemas.microsoft.com/<%- props.schemaName %>#",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "<%- props.schemaDescription %>",
+  "title": "<%- props.schemaTitle %>",
+  "definitions": {
+    <% for (resource in props.devices[0].resources) { %>
+    "<%- props.devices[0].resources[resource].name %>":{
+      "description": "<%- props.devices[0].resources[resource].description %>",
+      "type": "object",
+      "default": {
+        "id": "<%- props.devices[0].resources[resource].name %>",
+        "href": "/<%- props.devices[0].resources[resource].name %>",
+        "rt": ["<%- props.devices[0].resources[resource].schema.schema %>"],
+        "if": ["oic.if.<%- props.devices[0].resources[resource].writable ? 'a' : 's' %>", "oic.if.baseline"]
+      },
+      "allOf": [
+        {"$ref": "<%- props.devices[0].resources[resource].schema.schema %>.json#/definitions/<%- props.devices[0].resources[resource].schema.schema %>"},
+        {"$ref": "oic.oic-link-schema.json#/definitions/oic.oic-link"}
+      ]
+    }<% if (resource < props.devices[0].resources.length - 1) { %>,<% } %>
+  <% } %>},
+
+  "type": "object",
+  "allOf": [
+    {"$ref": "oic.core.json#/definitions/oic.core"},
+    {"$ref": "oic.baseResource.json#/definitions/oic.r.baseresource"},
+    {"$ref": "#/definitions/<%- props.schemaName %>"}
+  ]
+}

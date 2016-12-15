@@ -1,0 +1,60 @@
+#%RAML 0.8
+title: <%- props.schemaName %>
+version: v1.0
+
+schemas:<% for (resource in props.requiredResources) { %>
+  - <%= props.requiredResources[resource].name %>: !include <%= props.requiredResources[resource].schema %>.json<% } %>
+  - <%- props.platformName %>: !include <%- props.schemaName %>.json
+    
+
+traits:
+    - interface-actuator:
+      queryParameters:
+        if:
+          enum: ["oic.if.a", "oic.if.baseline"]
+
+  - interface-sensor:
+      queryParameters:
+        if:
+          enum: ["oic.if.s", "oic.if.baseline"]
+
+/:
+  displayName: Platform
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            schema: <%- props.platformName %>
+
+/?$expand
+  displayName: Platform
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            schema: <%- props.platformName %>
+
+/devices/{deviceid}:
+  <% for (resource in props.devices[0].resources) { %>
+  /<%- props.devices[0].resources[resource].name %>:
+    displayName: <%- props.devices[0].resources[resource].displayName %>
+    is: [ interface-<%- props.devices[0].resources[resource].writable ? 'actuator' : 'sensor' %> ]
+
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              schema: <%- props.devices[0].resources[resource].schema.name %>
+    <% if (props.devices[0].resources[resource].writable) { %>post:
+      body:
+        application/json:
+          schema: <%- props.devices[0].resources[resource].schema.name %><% } %>
+      responses:
+        200:
+          body:
+            application/json:
+              schema: <%- props.devices[0].resources[resource].schema.name %>
+<% } %>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://standards.freedesktop.org/dbus/introspect-1.0.dtd"[]>
+<node>
+  <interface name="<%- props.schemaName %>">
+    <description><%- props.schemaDescription %></description>
+    <% for (resource in props.devices[0].resources) { %>
+    <property name="<%- props.devices[0].resources[resource].name %>" type="" access="<%- props.devices[0].resources[resource].writable ? 'readwrite' : 'read' %>">
+      <description><%- props.devices[0].resources[resource].description %></description>
+    </property>
+    <% } %>
+  </interface>
+</node>

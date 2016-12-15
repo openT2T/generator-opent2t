@@ -1,11 +1,11 @@
 var test = require('ava');
 var OpenT2T = require('opent2t').OpenT2T;
 var translatorPath = require('path').join(__dirname, '..');
-var run<%- props.deviceFriendlyName %>Tests = require('opent2t-device-<%- props.deviceNameLow %>/<%- props.deviceName %>Tests');
+var run<%- props.device.upperCamelName %>Tests = require('opent2t-device-<%- props.device.lowerName %>/<%- props.device.camelName%>Tests');
 var config = require('./testConfig');
-var hubPath = require('path').join(__dirname, '../../../../org.opent2t.sample.hub.superpopular/com.<%- props.hubName %>.hub/js');
+var hubPath = require('path').join(__dirname, '../../../../org.opent2t.sample.hub.superpopular/com.<%- props.hub.lowerName %>.hub/js');
 
-function get<%- props.deviceFriendlyName %>(devices) {
+function get<%- props.device.upperCamelName %>(devices) {
     for (var i = 0; i < devices.length; i++) {
         var d = devices[i];
 
@@ -20,7 +20,7 @@ function get<%- props.deviceFriendlyName %>(devices) {
 function createTranslator() {
     return OpenT2T.createTranslatorAsync(hubPath, 'thingTranslator', config).then(hubTranslator => {
         return OpenT2T.invokeMethodAsync(hubTranslator, 'org.opent2t.sample.hub.superpopular', 'get', [false]).then(platforms => {
-            var platformInfo = get<%- props.deviceFriendlyName %>(platforms.platforms);
+            var platformInfo = get<%- props.device.upperCamelName %>(platforms.platforms);
             var deviceInfo = {'opent2t': platformInfo.opent2t};
 
             return OpenT2T.createTranslatorAsync(translatorPath, 'thingTranslator', {'deviceInfo': deviceInfo, 'hub': hubTranslator});
@@ -35,4 +35,4 @@ var settings = {
 };
 
 // Run standard binary switch tests
-run<%- props.deviceFriendlyName %>Tests(settings);
+run<%- props.device.upperCamelName %>Tests(settings);

@@ -6,7 +6,6 @@ function createDeviceInfo(friendlyName, lowerName) {
     info.noSpaceName = info.friendlyName.replace(/ /g, '');
     info.camelName = info.noSpaceName.charAt(0).toLowerCase() + info.noSpaceName.slice(1);
     info.upperCamelName = info.noSpaceName.charAt(0).toUpperCase() + info.noSpaceName.slice(1);
-    //info.lowerName = info.noSpaceName.toLowerCase();
     if(lowerName === undefined) {
         info.lowerName = info.noSpaceName.toLowerCase();
     } else {

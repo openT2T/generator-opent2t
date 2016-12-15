@@ -1,0 +1,15 @@
+'use strict';
+
+var request = require('request-promise');
+var accessTokenInfo = require('./common').accessTokenInfo;
+
+class Onboarding {
+
+    onboard(authInfo) {
+        console.log("Onboarding <%- props.hub.friendlyName %> Hub");
+
+        // Add implementation
+    }
+}
+
+module.exports = Onboarding;

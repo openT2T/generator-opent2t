@@ -7,7 +7,23 @@
   </schemas>
   <!-- associated onboarding module -->
   <onboarding id="<%- props.onboardingPackage %>">
-    <onboardflow name="getUserInput">
-    </onboardflow>
+    <% if (props.userInputs.length > 0) { %><onboardflow name="getUserInput"><% for (input in props.userInputs) { %>
+      <flow type="<%= props.userInputs[input].type %>">
+        <arg name="<%= props.userInputs[input].name %>" />
+        <description language="en"><%= props.userInputs[input].description %></description>
+      </flow><% } %>
+    </onboardflow><% } %>
+    <% if (props.devInputs.length > 0) { %><onboardflow name="getDeveloperInput"><% for (input in props.devInputs) { %>
+      <flow type="<%= props.devInputs[input].type %>">
+        <arg name="<%= props.devInputs[input].name %>" />
+        <description language="en"><%= props.devInputs[input].description %></description>
+      </flow><% } %>
+    </onboardflow><% } %>
+    <% if (props.addUserPermission) { %><onboardflow name="askUserPermission">
+      <flow>
+        <arg name="url" />
+        <description language="en"><%- props.userPermissionUrl %></description>
+      </flow>
+    </onboardflow><% } %>
   </onboarding>
 </manifest>

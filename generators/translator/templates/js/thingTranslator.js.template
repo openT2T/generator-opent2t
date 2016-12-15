@@ -53,17 +53,17 @@ function providerSchemaToPlatformSchema(providerSchema, expand) {
     // Add implementation
 }
 
-// This translator class implements the 'org.opent2t.sample.<%- props.deviceName %>.superpopular' interface.
+// This translator class implements the 'org.opent2t.sample.<%- props.device.lowerName %>.superpopular' interface.
 class Translator {
 
     constructor(deviceInfo) {
-        console.log('<%- props.hub.friendlyName %> <%- props.deviceFriendlyName %> initializing...');
+        console.log('<%- props.hub.friendlyName %> <%- props.device.friendlyName %> initializing...');
 
         validateArgumentType(deviceInfo, "deviceInfo", "object");
 
         // Add implementation
 
-        console.log('<%- props.hub.friendlyName %> <%- props.deviceFriendlyName %> initializing...Done');
+        console.log('<%- props.hub.friendlyName %> <%- props.device.friendlyName %> initializing...Done');
     }
 
     getDeviceResource(deviceId, resourceId) {
@@ -73,13 +73,11 @@ class Translator {
     postDeviceResource(deviceId, resourceId, payload) {
         // Add implementation
     }
-
     <% for (method in props.schemaMethods) { %>
     <%= props.schemaMethods[method].name %>(<%= props.schemaMethods[method].params %>) {
-        <%= props.schemaMethods[method].callee %>
+        <%- props.schemaMethods[method].callee %>
     }
-    <% } %>
-}
+<% } %>}
 
 // Export the translator from the module.
 module.exports = Translator;

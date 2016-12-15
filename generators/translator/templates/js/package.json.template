@@ -1,7 +1,7 @@
 {
     "name": "<%- props.packageName %>",
     "version": "0.2.0",
-    "description": "<%- props.hub.friendlyName %> <%- props.deviceFriendlyName %>",
+    "description": "<%- props.hub.friendlyName %> <%- props.device.friendlyName %>",
     "homepage": "http://opentranslatorstothings.org",
     "repository": {
         "type": "git",

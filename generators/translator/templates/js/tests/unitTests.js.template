@@ -1,0 +1,15 @@
+var test = require('ava');
+var translatorPath = require('path').join(__dirname, '..');
+var run<%- props.device.upperCamelName %>Tests = require('opent2t-device-<%- props.device.lowerName %>/<%- props.device.camelName%>Tests');
+var deviceData = require('./devicedata');
+var MockHub = require('opent2t-device-<%- props.hub.lowerName %>hub/mock<%- props.hub.capName %>Hub');
+var mockHub = new MockHub(deviceData);
+
+var settings = {
+    createTranslator: mockHub.createTranslator(translatorPath, /* Insert ID */),
+    test: test,
+    setTestData: mockHub.setTestData
+};
+
+// Run standard lamp unit tests
+run<%- props.device.upperCamelName %>Tests(settings);

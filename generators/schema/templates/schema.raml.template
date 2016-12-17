@@ -58,3 +58,33 @@ traits:
             application/json:
               schema: <%- props.devices[0].resources[resource].schema.name %>
 <% } %>
+<% if (props.supportsNotifications) { %>/subscribe:
+  description: This resource manages subscriptions to changes on this device.
+  displayName: Subscribe
+    
+  post:
+    description: Subscribes to notifications
+    body:
+      application/json:
+        schema: Subscription   
+    responses:
+       200:
+        body:
+          application/json:
+            schema: Subscription
+       400:
+          body:
+            application/json:
+       403:
+          body:
+            application/json:
+
+  delete:
+    description: Unsubscribes to notifications
+    body:
+      application/json:
+        schema: Subscription
+    responses:
+      200:
+        body:
+          application/json:<% } %>

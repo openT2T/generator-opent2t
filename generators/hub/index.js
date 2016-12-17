@@ -4,6 +4,7 @@ const packagePrefix = 'opent2t-translator-com-';
 const onboardPrefixx = 'org.opent2t.onboarding.';
 var yeoman = require('yeoman-generator');
 var extend = require('util')._extend;
+var utils = require('./../utilities');
 var devInputs = [];
 var userInputs = [];
 var argumentTypes = ['input', 'password'];
@@ -20,11 +21,11 @@ module.exports = yeoman.Base.extend({
     this.props.packageName = packagePrefix + this.props.hub.lowerName + '-hub';
     this.props.onboardingPackage = onboardPrefixx + this.props.hub.lowerName + 'hub';
 
-    this.dependency = function (dependencies, inputMessage, questionPrefix) {
+    this.addDependency = function (dependencies, inputMessage) {
 
-      if (questionPrefix === undefined) {
-        questionPrefix = 'Would you like to add a ';
-      }
+      var shouldAdd = function (response) {
+        return response.addInput;
+      };
 
       var that = this;
       return this.prompt(
@@ -32,37 +33,33 @@ module.exports = yeoman.Base.extend({
           {
             type: 'confirm',
             name: 'addInput',
-            message: questionPrefix + inputMessage + ' input argument?'
+            message: 'Would you like to add ' + (dependencies.length === 0 ? 'a' : 'another') + inputMessage + ' input argument?'
           },
           {
-            when: function (response) {
-              return response.addInput;
-            },
+            when: shouldAdd,
             type: 'input',
             name: 'argName',
-            message: 'What is the argument name?'
+            message: 'What is the argument name?',
+            validate: utils.validateNotEmpty('Please enter a valid argumant name.')
           },
           {
-            when: function (response) {
-              return response.addInput;
-            },
+            when: shouldAdd,
             type: 'rawlist',
             name: 'argType',
             message: 'What is the argument type?',
             choices: argumentTypes
           },
           {
-            when: function (response) {
-              return response.addInput;
-            },
+            when: shouldAdd,
             type: 'input',
             name: 'argDescription',
-            message: 'What is the argument description?'
+            message: 'What is the argument description?',
+            validate: utils.validateNotEmpty('Please enter a valid argumant description.')
           }
         ]).then(function (props) {
           if (props.addInput) {
             dependencies.push({ name: props.argName, type: props.argType, description: props.argDescription, shortType: props.argType === 'input' ? 's' : 'u' });
-            return that.dependency(dependencies, inputMessage, 'Would you like to add another ');
+            return that.addDependency(dependencies, inputMessage);
           }
         });
     };
@@ -87,15 +84,16 @@ module.exports = yeoman.Base.extend({
         type: 'input',
         name: 'onboardingPackage',
         message: 'What is the name of the onboarding node package?',
-        default: this.props.onboardingPackage
+        default: this.props.onboardingPackage,
+        validate: utils.validateNotEmpty('Please enter a valid package name.')
       }
     ];
 
     return this.prompt(prompts).then(function (props) {
       this.props = extend(this.props, props);
       var that = this;
-      return this.dependency(devInputs, 'developer').then(function () {
-        return that.dependency(userInputs, 'user').then(function () {
+      return this.addDependency(devInputs, 'developer').then(function () {
+        return that.addDependency(userInputs, 'user').then(function () {
           return that.prompt(
             [
               {
@@ -133,7 +131,7 @@ module.exports = yeoman.Base.extend({
 
                     }
                   } while (match);
-                  
+
                   if (missingTokens.length === 0) {
                     return true;
                   }

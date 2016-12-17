@@ -6,94 +6,91 @@ var chalk = require('chalk');
 var yosay = require('yosay');
 var path = require('path');
 var glob = require('glob');
-var extend = require('util')._extend;
 var utils = require('./../utilities');
-var hubChoices = [newHubLabel];
-var isNewHub = false;
 
-function getKnownHubs(root) {
-  var paths = glob.sync(root + 'org.opent2t.sample.hub.superpopular/com.*.hub/', {});
-
-  paths.forEach(function (element) {
-    var hub = path.parse(element).base;
-    var hubName = hub.replace('com.', '').replace('.hub', '');
-    hubChoices.push(hubName);
-  });
+function getHub(hubName) {
+  return utils.createDeviceInfo(hubName.replace('com.', '').replace('.hub', ''));
 }
 
 module.exports = yeoman.Base.extend({
   constructor: function () {
     yeoman.Base.apply(this, arguments);
 
-    this.argument('reporoot', { type: String, required: true });
-    getKnownHubs(this.reporoot);
+    this.option('repo-root', {
+      desc: 'The root of the translators repo',
+      alias: 'r',
+      type: String
+    });
+
+    this.option('device-schema', {
+      desc: 'The path to the raml schema that the device will implement',
+      alias: 'ds',
+      type: String
+    });
+
+    this.option('hub', {
+      desc: 'The package name of the hub used by the device',
+      type: String
+    });
+
+    this.createHub = false;
+
+    if (this.options['repo-root'] === undefined) {
+      this.log(chalk.bold.red('WARNING: ') + 'No repo specified. Defaulting to ../translators/');
+      this.env.options['repo-root'] = '../translators/';
+    } else {
+      this.env.options['repo-root'] = this.options['repo-root'];
+    }
+
+    this.env.options['device-schema'] = this.options['device-schema'];
+    if (this.options.hub !== undefined) {
+      this.hub = getHub(this.options.hub);
+    }
   },
 
   prompting: function () {
-    this.log(yosay(
-      chalk.red('opent2t translator') + ' generator!'
-    ));
+    this.log(yosay(chalk.red('opent2t translator') + ' generator!'));
 
-    var prompts = [
-      {
-        type: 'rawlist',
-        name: 'hubName',
-        message: 'Which hub does this translator use?',
-        choices: hubChoices
-      },
-      {
-        when: function (response) {
-          return response.hubName === newHubLabel;
-        },
-        type: 'input',
-        name: 'hubFriendlyName',
-        message: 'What is the friendly name of the new hub (e.g. Contoso Controller)?'
-      }
-    ];
+    if (this.hub === undefined) {
+      var paths = glob.sync(this.env.options['repo-root'] + 'org.opent2t.sample.hub.superpopular/com.*.hub/', {});
+      var hubChoices = paths.map(p => path.parse(p).base);
+      hubChoices.unshift(newHubLabel);
 
-    var hub;
-
-    return this.prompt(prompts).then(function (props) {
-      this.props = props;
-      var extraPrompts;
-
-      if (this.props.hubName === newHubLabel) {
-
-        isNewHub = true;
-        hub = utils.createDeviceInfo(this.props.hubFriendlyName);
-
-        extraPrompts = [
+      return this.prompt(
+        [
           {
-            type: 'input',
+            type: 'rawlist',
             name: 'hubName',
-            message: 'What is the name of the new hub?',
-            default: hub.lowerName
-          }
-        ];
-      } else {
-        extraPrompts = [
+            message: 'Which hub does this translator use?',
+            choices: hubChoices
+          },
           {
+            when: function (response) {
+              return response.hubName === newHubLabel;
+            },
             type: 'input',
             name: 'hubFriendlyName',
-            message: 'What is the friendly name of the hub?',
-            default: this.props.hubName.charAt(0).toUpperCase() + this.props.hubName.slice(1)
+            message: 'What is the friendly name of the new hub (e.g. Contoso Controller)?',
+            validate: utils.validateNotEmpty('Please enter a valid name.')
           }
-        ];
-      }
-
-      return this.prompt(extraPrompts).then(function (answers) {
-        this.props = extend(this.props, answers);
-        this.props.hub = utils.createDeviceInfo(this.props.hubFriendlyName, this.props.hubName);
+        ]
+      ).then(function (props) {
+        if (props.hubName === newHubLabel) {
+          this.hub = utils.createDeviceInfo(props.hubFriendlyName);
+          this.createHub = true;
+        } else {
+          this.hub = getHub(props.hubName);
+        }
       }.bind(this));
-    }.bind(this));
+    }
   },
 
   execSubgenerator: function () {
-    if (isNewHub) {
+    if (this.createHub) {
       this.composeWith('opent2t:hub',
         {
           options: {
-            hub: this.props.hub
+            hub: this.hub
           }
         });
     }
@@ -101,8 +98,9 @@ module.exports = yeoman.Base.extend({
     this.composeWith('opent2t:translator',
       {
         options: {
-          repoRoot: this.reporoot,
-          hub: this.props.hub
+          repoRoot: this.env.options['repo-root'],
+          hub: this.hub,
+          schema: this.env.options['device-schema']
         }
       });
   }

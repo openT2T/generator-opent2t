@@ -5,20 +5,8 @@ var yeoman = require('yeoman-generator');
 var path = require('path');
 var glob = require('glob');
 var raml = require('raml-1-parser');
+var packageNameValidate = require("validate-npm-package-name");
 var utils = require('./../utilities');
-var schemaChoices = [];
-
-function getKnownDevices(root) {
-  var paths = glob.sync(root + '/org.opent2t.sample.*.superpopular/', {});
-
-  paths.forEach(function (element) {
-    var schema = path.parse(element).base;
-    var deviceName = schema.replace('org.opent2t.sample.', '').replace('.superpopular', '');
-    if (deviceName !== 'hub') {
-      schemaChoices.push(deviceName);
-    }
-  });
-}
 
 function getSchemaMethods(ramlPath) {
   var ramlMethods = [];
@@ -54,7 +42,7 @@ function getSchemaMethods(ramlPath) {
           callee = 'return this.postDeviceResource(deviceId, \'' + resource + '\', payload);';
         }
       }
-      ramlMethods.push({name: methodName, params: params, callee: callee});
+      ramlMethods.push({ name: methodName, params: params, callee: callee });
     }
   }
 
@@ -105,56 +93,69 @@ module.exports = yeoman.Base.extend({
     yeoman.Base.apply(this, arguments);
     this.option('repoRoot');
     this.option('hub');
+    this.option('schema');
+
+    this.env.options['schema'] = this.options['schema'];
 
     this.props = {
       hub: this.options.hub
     };
-
-    getKnownDevices(this.options.repoRoot);
   },
 
   prompting: function () {
     var prompts = [
       {
-        type: 'rawlist',
-        name: 'deviceName',
-        message: 'Which schema does the device use?',
-        choices: schemaChoices
+        type: 'input',
+        name: 'deviceFriendlyName',
+        message: 'What is the human-readable name of the thing you are writing a translator for (e.g. Binary Switch)? ',
+        validate: utils.validateNotEmpty('Please enter a valid translator name.')
+      },
+      {
+        type: 'input',
+        name: 'packageName',
+        message: 'What is the node package name you want to use (e.g. opent2t-translator-com-contoso-binaryswitch)? ',
+        validate: function (input) {
+          var pass = input.toLowerCase().startsWith(packagePrefix) && packageNameValidate(input).validForNewPackages;
+          if (pass) {
+            return true;
+          }
+          return 'Please enter a valid package name. It must start with ' + packagePrefix + ' and should adhere to the requirements for node package names.';
+        }
       }
     ];
 
-    return this.prompt(prompts).then(function (props) {
-      this.props.packageName = packagePrefix + this.props.hub.lowerName + '-' + props.deviceName;
-      this.props.hubPackageName = packagePrefix + this.props.hub.lowerName + '-hub';
-      var schema = 'org.opent2t.sample.' + props.deviceName + '.superpopular';
-      var ramlPath = path.join(this.options.repoRoot, schema, schema + '.raml');
-      this.props.schemaMethods = getSchemaMethods(ramlPath);
+    var knownSchema = this.env.options['schema'] !== undefined;
 
-      var extraPrompts = [
+    if (!knownSchema) {
+      var paths = glob.sync(this.options.repoRoot + '/org.opent2t.sample.!(hub).superpopular/', {});
+
+      prompts.push(
         {
-          type: 'input',
-          name: 'deviceFriendlyName',
-          message: 'What is the friendly name of the device?',
-          default: props.deviceName.charAt(0).toUpperCase() + props.deviceName.slice(1)
-        },
-        {
-          type: 'input',
-          name: 'packageName',
-          message: 'What is the name of the translator node package?',
-          default: this.props.packageName,
-          validate: function (input) {
-            var pass = input.toLowerCase().startsWith(packagePrefix);
-            if (pass) {
-              return true;
-            }
-            return 'Please enter a valid package name. It must start with ' + packagePrefix + ' and should adhere to the requirements for node package names.';
-          }
+          type: 'rawlist',
+          name: 'schemaName',
+          message: 'Which schema does the device use?',
+          choices: paths.map(p => path.parse(p).base)
         }
-      ];
+      );
+    }
 
-      return this.prompt(extraPrompts).then(function (answers) {
-        this.props.device = utils.createDeviceInfo(answers.deviceFriendlyName, props.deviceName);
-      }.bind(this));
+    return this.prompt(prompts).then(function (props) {
+      var schema;
+      var ramlPath;
+
+      if (knownSchema) {
+        ramlPath = this.env.options['schema'];
+        schema = path.basename(ramlPath, '.raml');
+      } else {
+        schema = props.schemaName;
+        ramlPath = path.join(this.options.repoRoot, schema, schema + '.raml');
+      }
+
+      this.props.packageName = props.packageName;
+      this.props.hubPackageName = packagePrefix + this.props.hub.lowerName + '-hub';
+      this.props.schemaName = schema;
+      this.props.schemaMethods = getSchemaMethods(ramlPath);
+      this.props.device = utils.createDeviceInfo(props.deviceFriendlyName);
     }.bind(this));
   },
 
@@ -163,37 +164,37 @@ module.exports = yeoman.Base.extend({
     this.fs.copyTpl(
       this.templatePath('js/thingTranslator.js.template'),
       this.destinationPath(destRoot + '/js/thingTranslator.js'),
-      {props: this.props}
+      { props: this.props }
     );
     this.fs.copyTpl(
       this.templatePath('js/manifest.xml.template'),
       this.destinationPath(destRoot + '/js/manifest.xml'),
-      {props: this.props}
+      { props: this.props }
     );
     this.fs.copyTpl(
       this.templatePath('js/package.json.template'),
       this.destinationPath(destRoot + '/js/package.json'),
-      {props: this.props}
+      { props: this.props }
     );
     this.fs.copyTpl(
       this.templatePath('js/README.md.template'),
       this.destinationPath(destRoot + '/js/README.md'),
-      {props: this.props}
+      { props: this.props }
     );
     this.fs.copyTpl(
       this.templatePath('js/tests/test.js.template'),
       this.destinationPath(destRoot + '/js/tests/test.js'),
-      {props: this.props}
+      { props: this.props }
     );
     this.fs.copyTpl(
       this.templatePath('js/tests/unitTests.js.template'),
       this.destinationPath(destRoot + '/js/tests/unitTests.js'),
-      {props: this.props}
+      { props: this.props }
     );
     this.fs.copyTpl(
       this.templatePath('js/tests/devicedata.json.template'),
       this.destinationPath(destRoot + '/js/tests/devicedata.json'),
-      {props: this.props}
+      { props: this.props }
     );
   }
 });

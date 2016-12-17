@@ -5,13 +5,13 @@ var extend = require('util')._extend;
 var path = require('path');
 var chalk = require('chalk');
 var glob = require('glob');
-var resourceChoices = [];
-var resourceInfos = [];
+var utils = require('./../utilities');
+
 var requiredResources = [];
 
 // TODO: We should get these lists from the cloud.
 //       Temporarily getting the list from a locally synced repo.
-function getKnownResources() {
+function getKnownResources(resourceChoices, resourceInfos) {
   var paths = glob.sync('../translators/oic.r.*/', {});
 
   paths.forEach(function (resourcePath) {
@@ -26,7 +26,7 @@ function getKnownResources() {
   });
 }
 
-function getResourceInfo(resourceSchema) {
+function getResourceInfo(resourceSchema, resourceInfos) {
   for (var i = 0; i < resourceInfos.length; i++) {
     if (resourceInfos[i].schema === resourceSchema) {
       return resourceInfos[i];
@@ -42,24 +42,14 @@ function addRequiredResource(resourceInfo) {
   }
 }
 
-function validateNotEmpty(message) {
-  return function (input) {
-    var pass = Boolean(input);
-    if (pass) {
-      return true;
-    }
-
-    return message;
-  };
-}
-
-
 module.exports = yeoman.Base.extend({
   constructor: function () {
     yeoman.Base.apply(this, arguments);
     this.props = { devices: [] };
 
-    getKnownResources();
+    var resourceChoices = [];
+    var resourceInfos = [];
+    getKnownResources(resourceChoices, resourceInfos);
 
     this.addResource = function (device, message) {
       var that = this;
@@ -81,21 +71,21 @@ module.exports = yeoman.Base.extend({
           type: 'input',
           name: 'resourceName',
           message: 'What is the resource name (e.g. colorMode)?',
-          validate: validateNotEmpty('Please enter a valid resource name.')
+          validate: utils.validateNotEmpty('Please enter a valid resource name.')
         },
         {
           when: shouldAdd,
           type: 'input',
           name: 'displayName',
           message: 'What is the resource display name (e.g. Color Mode)?',
-          validate: validateNotEmpty('Please enter a valid resource display name.')
+          validate: utils.validateNotEmpty('Please enter a valid resource display name.')
         },
         {
           when: shouldAdd,
           type: 'input',
           name: 'resourceDescription',
           message: 'What is the resource description (e.g. Light on/off.)?',
-          validate: validateNotEmpty('Please enter a valid resource description.')
+          validate: utils.validateNotEmpty('Please enter a valid resource description.')
         },
         {
           when: shouldAdd,
@@ -117,7 +107,7 @@ module.exports = yeoman.Base.extend({
 
       return this.prompt(prompts).then(function (props) {
         if (isFirst || props.addResource) {
-          var resourceInfo = getResourceInfo(props.resourceSchema);
+          var resourceInfo = getResourceInfo(props.resourceSchema, resourceInfos);
           addRequiredResource(resourceInfo);
           device.resources.push({ schema: resourceInfo, name: props.resourceName, displayName: props.displayName, writable: props.isWritable, description: props.resourceDescription });
           that.log('');
@@ -139,7 +129,7 @@ module.exports = yeoman.Base.extend({
           type: 'input',
           name: 'deviceName',
           message: isFirst ? 'What is the human readable name of the first device?' : 'What is the human readable name of the device?',
-          validate: validateNotEmpty('Please enter a valid device name.')
+          validate: utils.validateNotEmpty('Please enter a valid device name.')
         }
       ];
 
@@ -176,25 +166,30 @@ module.exports = yeoman.Base.extend({
         type: 'input',
         name: 'schemaName',
         message: 'Please provide a name for the schema you would like to generate (e.g. org.opent2t.sample.lamp.superpopular)',
-        validate: validateNotEmpty('Please enter a valid schema name.')
+        validate: utils.validateNotEmpty('Please enter a valid schema name.')
       },
       {
         type: 'input',
         name: 'schemaDescription',
         message: 'Please provide a description for the schema',
-        validate: validateNotEmpty('Please enter a valid schema description.')
+        validate: utils.validateNotEmpty('Please enter a valid schema description.')
       },
       {
         type: 'input',
         name: 'schemaTitle',
         message: 'Please provide a title for the schema (e.g. OpenT2T SuperPopular Lamp)',
-        validate: validateNotEmpty('Please enter a valid schema title.')
+        validate: utils.validateNotEmpty('Please enter a valid schema title.')
       },
       {
         type: 'input',
         name: 'platformName',
         message: 'Please provide a name for the paltform (e.g. LightPlatform)',
-        validate: validateNotEmpty('Please enter a valid platform name.')
+        validate: utils.validateNotEmpty('Please enter a valid platform name.')
+      },
+      {
+        type: 'confirm',
+        name: 'supportsNotifications',
+        message: 'Add support for notifications?'
       }
     ];
 

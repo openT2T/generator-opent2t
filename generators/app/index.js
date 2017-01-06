@@ -43,6 +43,7 @@ module.exports = yeoman.Base.extend({
     }
 
     this.env.options['device-schema'] = this.options['device-schema'];
+
     if (this.options.hub !== undefined) {
       this.hub = getHub(this.options.hub);
     }

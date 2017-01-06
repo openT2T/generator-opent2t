@@ -58,7 +58,7 @@ traits:
             application/json:
               schema: <%- props.devices[0].resources[resource].schema.name %>
 <% } %>
-<% if (props.supportsNotifications) { %>/subscribe:
+/subscribe:
   description: This resource manages subscriptions to changes on this device.
   displayName: Subscribe
     
@@ -87,4 +87,4 @@ traits:
     responses:
       200:
         body:
-          application/json:<% } %>
+          application/json:

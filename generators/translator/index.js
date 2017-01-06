@@ -3,6 +3,7 @@
 const packagePrefix = 'opent2t-translator-com-';
 var yeoman = require('yeoman-generator');
 var path = require('path');
+var chalk = require('chalk');
 var glob = require('glob');
 var raml = require('raml-1-parser');
 var packageNameValidate = require("validate-npm-package-name");
@@ -127,17 +128,19 @@ module.exports = yeoman.Base.extend({
     var knownSchema = this.env.options['schema'] !== undefined;
 
     if (!knownSchema) {
-      var paths = glob.sync(this.options.repoRoot + '/org.opent2t.sample.!(hub).superpopular/', {});
+      var paths = glob.sync('{./dest/**,' + this.options.repoRoot + '/org.opent2t.sample.!(hub).superpopular}/*.raml', {});
 
       prompts.push(
         {
           type: 'rawlist',
           name: 'schemaName',
           message: 'Which schema does the device use?',
-          choices: paths.map(p => path.parse(p).base)
+          choices: paths.map(p => path.parse(p).name)
         }
       );
     }
+
+    this.log(chalk.blue('\nDefine Translator\n'));
 
     return this.prompt(prompts).then(function (props) {
       var schema;

@@ -6,7 +6,7 @@
     <schema id="oic.baseResource" type="OCF" />
   </schemas>
   <!-- associated onboarding module -->
-  <onboarding id="<%- props.onboardingPackage %>">
+  <onboarding id="<%- props.onboardingId %>">
     <% if (props.userInputs.length > 0) { %><onboardflow name="getUserInput"><% for (input in props.userInputs) { %>
       <flow type="<%= props.userInputs[input].type %>">
         <arg name="<%= props.userInputs[input].name %>" />

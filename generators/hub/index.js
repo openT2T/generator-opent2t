@@ -3,6 +3,7 @@
 const packagePrefix = 'opent2t-translator-com-';
 const onboardPrefixx = 'org.opent2t.onboarding.';
 var yeoman = require('yeoman-generator');
+var chalk = require('chalk');
 var extend = require('util')._extend;
 var utils = require('./../utilities');
 var devInputs = [];
@@ -19,7 +20,7 @@ module.exports = yeoman.Base.extend({
     };
 
     this.props.packageName = packagePrefix + this.props.hub.lowerName + '-hub';
-    this.props.onboardingPackage = onboardPrefixx + this.props.hub.lowerName + 'hub';
+    this.props.onboardingId = onboardPrefixx + this.props.hub.lowerName + 'hub';
 
     this.addDependency = function (dependencies, inputMessage) {
 
@@ -33,7 +34,7 @@ module.exports = yeoman.Base.extend({
           {
             type: 'confirm',
             name: 'addInput',
-            message: 'Would you like to add ' + (dependencies.length === 0 ? 'a' : 'another') + inputMessage + ' input argument?'
+            message: 'Would you like to add ' + (dependencies.length === 0 ? 'a ' : 'another ') + inputMessage + ' input argument?'
           },
           {
             when: shouldAdd,
@@ -82,12 +83,14 @@ module.exports = yeoman.Base.extend({
       },
       {
         type: 'input',
-        name: 'onboardingPackage',
-        message: 'What is the name of the onboarding node package?',
-        default: this.props.onboardingPackage,
-        validate: utils.validateNotEmpty('Please enter a valid package name.')
+        name: 'onboardingId',
+        message: 'What is the hub onboarding id?',
+        default: this.props.onboardingId,
+        validate: utils.validateNotEmpty('Please enter a valid id.')
       }
     ];
+
+    this.log(chalk.blue('\nDefine Hub\n'));
 
     return this.prompt(prompts).then(function (props) {
       this.props = extend(this.props, props);

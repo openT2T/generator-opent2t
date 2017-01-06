@@ -11,8 +11,8 @@ var requiredResources = [];
 
 // TODO: We should get these lists from the cloud.
 //       Temporarily getting the list from a locally synced repo.
-function getKnownResources(resourceChoices, resourceInfos) {
-  var paths = glob.sync('../translators/oic.r.*/', {});
+function getKnownResources(resourceChoices, resourceInfos, repoRoot) {
+  var paths = glob.sync(repoRoot + '/oic.r.*/', {});
 
   paths.forEach(function (resourcePath) {
     var ramlFiles = glob.sync(resourcePath + '*.raml', {});
@@ -45,11 +45,27 @@ function addRequiredResource(resourceInfo) {
 module.exports = yeoman.Base.extend({
   constructor: function () {
     yeoman.Base.apply(this, arguments);
+
+    this.option('repo-root', {
+      desc: 'The root of the translators repo',
+      alias: 'r',
+      type: String
+    });
+
     this.props = { devices: [] };
 
     var resourceChoices = [];
     var resourceInfos = [];
-    getKnownResources(resourceChoices, resourceInfos);
+    var repoRoot;
+
+    if (this.options['repo-root'] === undefined) {
+      this.log(chalk.bold.red('WARNING: ') + 'No repo specified. Defaulting to ../translators/');
+      repoRoot = '../translators/';
+    } else {
+      repoRoot = this.options['repo-root'];
+    }
+
+    getKnownResources(resourceChoices, resourceInfos, repoRoot);
 
     this.addResource = function (device, message) {
       var that = this;
@@ -185,11 +201,6 @@ module.exports = yeoman.Base.extend({
         name: 'platformName',
         message: 'Please provide a name for the paltform (e.g. LightPlatform)',
         validate: utils.validateNotEmpty('Please enter a valid platform name.')
-      },
-      {
-        type: 'confirm',
-        name: 'supportsNotifications',
-        message: 'Add support for notifications?'
       }
     ];
 

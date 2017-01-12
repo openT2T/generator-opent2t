@@ -86,14 +86,19 @@ module.exports = yeoman.Base.extend({
           when: shouldAdd,
           type: 'input',
           name: 'resourceName',
-          message: 'What is the resource name (e.g. colorMode)?',
-          validate: utils.validateNotEmpty('Please enter a valid resource name.')
+          message: 'What is the resource name (e.g. colourMode)?',
+          validate: function (input) {
+            if (Boolean(input) && device.resources.find(r => { return r.name === input; }) === undefined) {
+              return true;
+            }
+            return 'Please enter a unique, non-empty resource name.';
+          }
         },
         {
           when: shouldAdd,
           type: 'input',
           name: 'displayName',
-          message: 'What is the resource display name (e.g. Color Mode)?',
+          message: 'What is the resource display name (e.g. Colour Mode)?',
           validate: utils.validateNotEmpty('Please enter a valid resource display name.')
         },
         {
@@ -199,7 +204,7 @@ module.exports = yeoman.Base.extend({
       {
         type: 'input',
         name: 'platformName',
-        message: 'Please provide a name for the paltform (e.g. LightPlatform)',
+        message: 'Please provide a name for the platform (e.g. LightPlatform)',
         validate: utils.validateNotEmpty('Please enter a valid platform name.')
       }
     ];

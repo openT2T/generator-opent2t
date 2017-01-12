@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest>
+  <schemas>
+    <schema id="org.opent2t.sample.hub.superpopular" main="true" type="OCF" />
+    <schema id="oic.core" type="OCF" />
+    <schema id="oic.baseResource" type="OCF" />
+  </schemas>
+  <!-- associated onboarding module -->
+  <onboarding id="<%- props.onboardingId %>">
+    <% if (props.userInputs.length > 0) { %><onboardflow name="getUserInput"><% for (input in props.userInputs) { %>
+      <flow type="<%= props.userInputs[input].type %>">
+        <arg name="<%= props.userInputs[input].name %>" />
+        <description language="en"><%= props.userInputs[input].description %></description>
+      </flow><% } %>
+    </onboardflow><% } %>
+    <% if (props.devInputs.length > 0) { %><onboardflow name="getDeveloperInput"><% for (input in props.devInputs) { %>
+      <flow type="<%= props.devInputs[input].type %>">
+        <arg name="<%= props.devInputs[input].name %>" />
+        <description language="en"><%= props.devInputs[input].description %></description>
+      </flow><% } %>
+    </onboardflow><% } %>
+    <% if (props.addUserPermission) { %><onboardflow name="askUserPermission">
+      <flow>
+        <arg name="url" />
+        <description language="en"><%- props.userPermissionUrl %></description>
+      </flow>
+    </onboardflow><% } %>
+  </onboarding>
+</manifest>

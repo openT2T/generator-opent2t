@@ -1,0 +1,5 @@
+# <%- props.hub.friendlyName %> Hub Onboarding
+Sample [<%- props.hub.friendlyName %> Hub] onboarding module for Open Translators to Things. May be used to discover devices connected to a <%- props.hub.friendlyName %> Hub per the 
+[org.opent2t.onboarding.<%- props.hub.lowerName %>hub.xml] schema.
+
+See schema definition for inputs to the onboarding method.

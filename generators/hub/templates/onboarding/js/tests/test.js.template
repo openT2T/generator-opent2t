@@ -1,0 +1,31 @@
+var test = require('ava');
+var OpenT2T = require('opent2t').OpenT2T;
+var testConfig = require('./testConfig');
+var onboardingPath = require('path').join(__dirname, '..');
+
+console.log("Test Config:");
+console.log(JSON.stringify(testConfig, null, 2));
+
+///
+/// Run a series of tests to validate the translator
+///
+
+// onboard
+test.serial('onboard', t => {
+
+    return OpenT2T.createTranslatorAsync(onboardingPath, 'thingOnboarding', testConfig)
+        .then(onboarding => {
+            // TEST: translator is valid
+            t.is(typeof onboarding, 'object') && t.truthy(onboarding);
+
+            return OpenT2T.invokeMethodAsync(onboarding, "org.opent2t.onboarding.<%- props.hub.lowerName %>", "onboard", [testConfig])
+                .then((accessToken) => {
+                    console.log("accessToken:");
+                    console.log(JSON.stringify(accessToken, null, 2));
+
+                    // TEST: something was returned
+                    t.truthy(accessToken);
+                    t.truthy(accessToken.accessToken);
+                });
+        });
+});

@@ -1,0 +1,53 @@
+'use strict';
+
+var request = require('request-promise');
+var OpenT2T = require('opent2t').OpenT2T;
+
+/**
+* This translator class implements the "Hub" interface.
+*/
+class Translator {
+    constructor(accessTokenInfo) {
+        this._accessToken = accessTokenInfo;
+        this._baseUrl = '';
+        this._devicesPath = '';
+        this._name = '<%- props.hub.upperCamelName %> Hub';
+    }
+
+    /**
+     * Get the hub definition and devices
+     */
+    get(expand, payload) {
+        return this.getPlatforms(expand, payload);
+    }
+
+    /**
+     * Get the list of devices discovered through the hub.
+     */
+    getPlatforms(expand, payload) {
+        // Add implementation
+    }
+
+    /**
+     * Get the name of the hub.  Ties to the n property from oic.core
+     */
+    getN() {
+        return this._name;
+    }
+
+    /**
+     * Gets device details (all fields)
+     */
+    getDeviceDetailsAsync(deviceType, deviceId) {
+        // Add implementation
+    }
+
+    /**
+     * Puts device details (all fields) payload
+     */
+    putDeviceDetailsAsync(deviceType, deviceId, putPayload) {
+        // Add implementation
+    }
+}
+
+module.exports = Translator;

@@ -1,36 +1,83 @@
 'use strict';
 
-// logs device state
-function logDeviceState(device) {
-  if (typeof (device) !== 'undefined') {
-    console.log('  device.name          : ' + device.name);
-    console.log('  device.props         : ' + device.props);
-  } else {
-    console.log('device is undefined');
-  }
-};
+// This code uses ES2015 syntax that requires at least Node.js v4.
+// For Node.js ES2015 support details, reference http://node.green/
 
-// module exports, implementing the schema
-module.exports = {
-
-  device: null,
-
-  initDevice: function(dev) {
-    this.device = dev;
-
-    console.log('javascript initialized.');
-    logDeviceState(this.device);
-  },
-
-  disconnect: function() {
-    console.log('disconnect called.');
-    logDeviceState(this.device);
-  },
-
-<%- props.stubFunctions %>
+/**
+ * Validates an argument matches the expected type.
+ */
+function validateArgumentType(arg, argName, expectedType) {
+    if (typeof arg === 'undefined') {
+        throw new Error('Missing argument: ' + argName + '. ' +
+            'Expected type: ' + expectedType + '.');
+    } else if (typeof arg !== expectedType) {
+        throw new Error('Invalid argument: ' + argName + '. ' +
+            'Expected type: ' + expectedType + ', got: ' + (typeof arg));
+    }
 }
 
-// globals for JxCore host
-global.initDevice = module.exports.initDevice;
-global.disconnect = module.exports.disconnect;
-<%- props.globals %>
+/**
+ * Finds a resource for an entity in a schema
+ */
+function findResource(schema, di, resourceId) {
+    var entity = schema.entities.find((d) => {
+        return d.di === di;
+    });
+
+    if (!entity) {
+        throw new Error('NotFound');
+    }
+
+    var resource = entity.resources.find((r) => {
+        return r.id === resourceId;
+    });
+
+    if (!resource) {
+        throw new Error('NotFound');
+    }
+
+    return resource;
+}
+
+/***
+ * Converts an OCF platform/resource schema for calls to the <%- props.hub.friendlyName %> API
+ */
+function resourceSchemaToProviderSchema(resourceId, resourceSchema) {
+    // Add implementation
+}
+
+/**
+ * Converts a representation of a platform from the <%- props.hub.friendlyName %> API into an OCF representation.
+ */
+function providerSchemaToPlatformSchema(providerSchema, expand) {
+    // Add implementation
+}
+
+// This translator class implements the 'org.opent2t.sample.<%- props.device.lowerName %>.superpopular' interface.
+class Translator {
+
+    constructor(deviceInfo) {
+        console.log('<%- props.hub.friendlyName %> <%- props.device.friendlyName %> initializing...');
+
+        validateArgumentType(deviceInfo, "deviceInfo", "object");
+
+        // Add implementation
+
+        console.log('<%- props.hub.friendlyName %> <%- props.device.friendlyName %> initializing...Done');
+    }
+
+    getDeviceResource(deviceId, resourceId) {
+        // Add implementation
+    }
+
+    postDeviceResource(deviceId, resourceId, payload) {
+        // Add implementation
+    }
+    <% for (method in props.schemaMethods) { %>
+    <%= props.schemaMethods[method].name %>(<%= props.schemaMethods[method].params %>) {
+        <%- props.schemaMethods[method].callee %>
+    }
+<% } %>}
+
+// Export the translator from the module.
+module.exports = Translator;

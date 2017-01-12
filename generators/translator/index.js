@@ -1,202 +1,203 @@
 'use strict';
+
+const packagePrefix = 'opent2t-translator-com-';
 var yeoman = require('yeoman-generator');
-var chalk = require('chalk');
-var yosay = require('yosay');
-var xml2js = require('xml2js');
-var extend = require('util')._extend;
-var glob = require('glob');
 var path = require('path');
+var chalk = require('chalk');
+var glob = require('glob');
+var raml = require('raml-1-parser');
+var packageNameValidate = require("validate-npm-package-name");
+var utils = require('./../utilities');
 
-var _parsedSchema = '';
-var _parsedOnboarding = '';
-var _stubFunctions = '';
-var _stubOnboardingArgs = '';
-var _devDependencies = '';
-var _globals = '';
+function getSchemaMethods(ramlPath) {
+  var ramlMethods = [];
 
-// Gets schema file IDs and paths from a local repo, given a path to the repo
-function getSchemaIdsAndPathsFromLocalRepo(localPath) {
+  function methodExists(methodName) {
+    for (var i = 0; i < ramlMethods.length; i++) {
+      if (ramlMethods[i].name === methodName) {
+        return true;
+      }
+    }
 
-  // first, get all xml files under the given path
-  var paths = glob.sync(localPath + '/**/*.xml', {});
+    return false;
+  }
 
-  // exclude manifest files
-  paths = paths.filter(function(item) {
-    return !item.endsWith('manifest.xml');
-  });
+  function addMethod(methodName) {
+    if (!methodExists(methodName)) {
+      var params = '';
+      var callee = '// Add implementation';
+      if (methodName === 'get') {
+        params = 'expand, payload';
+      }
 
-  var idsToPaths = {};
+      if (methodName.startsWith('getDevices') || methodName.startsWith('postDevices')) {
+        if (methodName.startsWith('getDevices')) {
+          params = 'deviceId';
+          let resource = methodName.replace('getDevices', '');
+          resource = resource.charAt(0).toLowerCase() + resource.slice(1);
+          callee = 'return this.getDeviceResource(deviceId, \'' + resource + '\');';
+        } else {
+          params = 'deviceId, payload';
+          let resource = methodName.replace('postDevices', '');
+          resource = resource.charAt(0).toLowerCase() + resource.slice(1);
+          callee = 'return this.postDeviceResource(deviceId, \'' + resource + '\', payload);';
+        }
+      }
+      ramlMethods.push({ name: methodName, params: params, callee: callee });
+    }
+  }
 
-  // The schema ID is the name of the schema file (without extension)
-  // See: https://nodejs.org/api/path.html#path_path_parse_pathstring
-  paths.forEach(function(element) {
-    var key = path.parse(element).name;
-    idsToPaths[key] = element;
-  }, this);
+  if (ramlPath) {
+    var resources = [];
+    raml.loadApiSync(ramlPath).resources().forEach(r => {
+      resources.push(r);
+    });
 
-  return idsToPaths;
-};
+    while (resources.length > 0) {
+      var current = resources.shift();
+      var resourceParts = current.completeRelativeUri().substring(1).split('/');
+      var suffix = '';
 
-module.exports = yeoman.generators.Base.extend({
-  constructor: function() {
-    yeoman.generators.Base.apply(this, arguments);
-    this.option('name', { type: String });
-    this.option('nested', { type: Boolean, hide: true });
+      resourceParts.forEach(part => {
+        { }
+        if (!part.startsWith('{') && !part.startsWith('?')) {
+          suffix += part.charAt(0).toUpperCase() + part.slice(1);
+        }
+      });
+
+      current.is().forEach(trait => {
+        var traitName = trait.name();
+        if (traitName === 'interface-sensor') {
+          addMethod('get' + suffix);
+        }
+        else if (traitName === 'interface-actuator') {
+          addMethod('get' + suffix);
+          addMethod('post' + suffix);
+        }
+      });
+
+      current.methods().forEach(method => {
+        addMethod(method.method() + suffix);
+      });
+
+      current.resources().forEach(child => {
+        resources.push(child);
+      });
+    }
+  }
+
+  return ramlMethods;
+}
+
+module.exports = yeoman.Base.extend({
+  constructor: function () {
+    yeoman.Base.apply(this, arguments);
+    this.option('repoRoot');
+    this.option('hub');
+    this.option('schema');
+
+    this.env.options['schema'] = this.options['schema'];
 
     this.props = {
-      name: this.options.name,
-      packageName: this.options.packageName
+      hub: this.options.hub
     };
   },
 
-  prompting: function() {
-    var done = this.async();
-
-    if (!this.options.nested) {
-      // Have Yeoman greet the user (unless this generator is being called from another).
-      this.log(yosay(
-        'Welcome to the ' + chalk.red('Open Translators to Things') + ' generator!'
-      ));
-    }
-
-    // Ask the user about what schema and onboarding module they want to implement.
-
-    // TODO: We should get these lists from the cloud, and then download the selected one locally.
-    //       Temporarily getting the list from a locally synced repo.
-    this.schemaIdsToPaths = getSchemaIdsAndPathsFromLocalRepo('../translators');
-    this.onboardingModelIdsToPaths = getSchemaIdsAndPathsFromLocalRepo('../onboarding');
-
+  prompting: function () {
     var prompts = [
       {
-        type: 'list',
-        name: 'schema',
-        message: 'What schema does this translator implement?',
-        choices: Object.keys(this.schemaIdsToPaths)
+        type: 'input',
+        name: 'deviceFriendlyName',
+        message: 'What is the human-readable name of the thing you are writing a translator for (e.g. Binary Switch)? ',
+        validate: utils.validateNotEmpty('Please enter a valid translator name.')
       },
       {
-        type: 'list',
-        name: 'onboarding',
-        message: 'What onboarding model does this translator implement?',
-        choices: Object.keys(this.onboardingModelIdsToPaths)
+        type: 'input',
+        name: 'packageName',
+        message: 'What is the node package name you want to use (e.g. opent2t-translator-com-contoso-binaryswitch)? ',
+        validate: function (input) {
+          var pass = input.toLowerCase().startsWith(packagePrefix) && packageNameValidate(input).validForNewPackages;
+          if (pass) {
+            return true;
+          }
+          return 'Please enter a valid package name. It must start with ' + packagePrefix + ' and should adhere to the requirements for node package names.';
+        }
       }
     ];
 
-    this.prompt(prompts, function(props) {
-      this.props = extend(this.props, props);
-      this.props.schemaFilePath = this.schemaIdsToPaths[props.schema];
-      this.props.onboardingFilePath = this.onboardingModelIdsToPaths[props.onboarding];
+    var knownSchema = this.env.options['schema'] !== undefined;
 
-      done();
+    if (!knownSchema) {
+      var paths = glob.sync('{./dest/**,' + this.options.repoRoot + '/org.opent2t.sample.!(hub).superpopular}/*.raml', {});
+
+      prompts.push(
+        {
+          type: 'rawlist',
+          name: 'schemaName',
+          message: 'Which schema does the device use?',
+          choices: paths.map(p => path.parse(p).name)
+        }
+      );
+    }
+
+    this.log(chalk.blue('\nDefine Translator\n'));
+
+    return this.prompt(prompts).then(function (props) {
+      var schema;
+      var ramlPath;
+
+      if (knownSchema) {
+        ramlPath = this.env.options['schema'];
+        schema = path.basename(ramlPath, '.raml');
+      } else {
+        schema = props.schemaName;
+        ramlPath = path.join(this.options.repoRoot, schema, schema + '.raml');
+      }
+
+      this.props.packageName = props.packageName;
+      this.props.hubPackageName = packagePrefix + this.props.hub.lowerName + '-hub';
+      this.props.schemaName = schema;
+      this.props.schemaMethods = getSchemaMethods(ramlPath);
+      this.props.device = utils.createDeviceInfo(props.deviceFriendlyName);
     }.bind(this));
   },
 
-  xmlParsing: function() {
-    var done = this.async();
-    var fs = require('fs');
-    var parser = new xml2js.Parser();
-
-    var localProps = this.props;
-
-    // Parse schema to generate stub functions
-    var schemaFile = fs.readFileSync(this.props.schemaFilePath);
-    parser.parseString(schemaFile, function(err, result) {
-      if (err) {
-        console.log(err.stack);
-      } else {
-        _parsedSchema = result;
-
-        // We only handle one interface right now (the first one)
-        var methods = _parsedSchema.node.interface[0].method;
-        for (var i = 0; i < methods.length; i++) {
-          var argString = '';
-          var args = methods[i].arg;
-
-          if (args) {
-            for (var j = 0; j < args.length; j++) {
-              argString += '/* [' + args[j].$.direction + '] ' + args[j].$.type + ' */ ' + args[j].$.name;
-            }
-            if (i < args.length - 1) {
-              argString += ', ';
-            }
-          }
-
-          // Create a stub function per method in the schema
-          _stubFunctions +=
-            '  ' + methods[i].$.name + ': function(' + argString + ') {\n' +
-            '    console.log(\'' + methods[i].$.name + ' called.\');\n' +
-            '  }';
-
-          if (i < methods.length - 1) {
-            _stubFunctions += ',\n\n';
-          }
-
-          // Create an export per method in the schema
-          _globals += 'global.' + methods[i].$.name + ' = module.exports.' + methods[i].$.name + ';\n';
-        }
-      }
-
-      // Create standard dev dependencies used by the CLI
-      _devDependencies =
-        '    "async": "~1.5.2",\n' +
-        '    "optimist": "0.6.1"';
-
-      // Next, Parse onboarding to generate stub onboarding values
-      var onboardingFile = fs.readFileSync(localProps.onboardingFilePath);
-      parser.parseString(onboardingFile, function(err, result) {
-        if (err) {
-          console.log(err.stack);
-        } else {
-          _parsedOnboarding = result;
-
-          // Find all methods
-          var methods = _parsedOnboarding.node.interface[0].method;
-          for (var i = 0; i < methods.length; i++) {
-            // look for all args of the onboarding method, and create stub properties
-            if (methods[i].$.name.toLowerCase() === 'onboard') {
-              var args = methods[i].arg;
-              if (args) {
-                for (var j = 0; j < args.length; j++) {
-                  _stubOnboardingArgs += '\n    <arg name="' + args[j].$.name + '" value="" />';
-                }
-              }
-            }
-          }
-        }
-
-        // all done
-        done();
-      });
-    });
-  },
-
-  writing: function() {
-    this.props.stubFunctions = _stubFunctions;
-    this.props.devDependencies = _devDependencies;
-    this.props.stubOnboardingArgs = _stubOnboardingArgs;
-    this.props.globals = _globals;
-
-    this.log('Writing files...');
+  writing: function () {
+    var destRoot = 'dest/com.' + this.props.hub.lowerName + '.' + this.props.device.lowerName;
     this.fs.copyTpl(
       this.templatePath('js/thingTranslator.js.template'),
-      this.destinationPath('dist/js/thingTranslator.js'),
+      this.destinationPath(destRoot + '/js/thingTranslator.js'),
       { props: this.props }
     );
     this.fs.copyTpl(
       this.templatePath('js/manifest.xml.template'),
-      this.destinationPath('dist/js/manifest.xml'),
+      this.destinationPath(destRoot + '/js/manifest.xml'),
       { props: this.props }
     );
     this.fs.copyTpl(
       this.templatePath('js/package.json.template'),
-      this.destinationPath('dist/js/package.json'),
+      this.destinationPath(destRoot + '/js/package.json'),
       { props: this.props }
     );
     this.fs.copyTpl(
-      this.templatePath('js/test.js.template'),
-      this.destinationPath('dist/js/test.js'),
+      this.templatePath('js/README.md.template'),
+      this.destinationPath(destRoot + '/js/README.md'),
       { props: this.props }
     );
-
-    this.log('package.json generated. OpenT2T translators use the MIT license.');
+    this.fs.copyTpl(
+      this.templatePath('js/tests/test.js.template'),
+      this.destinationPath(destRoot + '/js/tests/test.js'),
+      { props: this.props }
+    );
+    this.fs.copyTpl(
+      this.templatePath('js/tests/unitTests.js.template'),
+      this.destinationPath(destRoot + '/js/tests/unitTests.js'),
+      { props: this.props }
+    );
+    this.fs.copyTpl(
+      this.templatePath('js/tests/devicedata.json.template'),
+      this.destinationPath(destRoot + '/js/tests/devicedata.json'),
+      { props: this.props }
+    );
   }
 });

@@ -1,10 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest>
   <!-- associated voice handler -->
   <voice id="" />
-  <!-- associated schema -->
-  <schema id="<%= props.schema %>" />
-  <!-- associated onboarding module -->
-  <onboarding id="<%= props.onboarding %>"><%- props.stubOnboardingArgs %>
-  </onboarding>
+  <!-- associated schemas -->
+  <schemas>
+    <schema id="<%- props.schemaName %>" main="true" type="OCF" />
+    <schema id="opent2t.platform" type="OCF" />
+    <schema id="oic.core" type="OCF" />
+    <schema id="oic.baseresource" type="OCF" />
+  </schemas>
 </manifest>

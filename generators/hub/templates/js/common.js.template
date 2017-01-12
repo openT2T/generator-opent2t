@@ -1,0 +1,16 @@
+'use strict';
+
+class accessTokenInfo {
+        constructor(
+            accessToken,
+            tokenType, // ex: 'bearer'
+            scopes // ex: 'full_access'
+        )
+    {
+        this.accessToken = accessToken;
+        this.tokenType = tokenType;
+        this.scopes = scopes;
+    }
+}
+
+module.exports.accessTokenInfo = accessTokenInfo;

@@ -1,26 +1,34 @@
 {
   "name": "generator-opent2t",
-  "version": "1.0.2",
+  "version": "1.0.3",
+  "description": "Yeoman generator for an Open Translators to Things translator",
+  "homepage": "http://opentranslatorstothings.org",
   "files": [
-    "generators/app",
-    "generators/translator"
+    "generators"
   ],
-  "main": "generators\\index.js",
+  "main": "generators/index.js",
+  "keywords": [
+    "opent2t",
+    "yeoman-generator"
+  ],
   "dependencies": {
+    "yeoman-generator": "^0.23.0",
     "chalk": "^1.0.0",
-    "xml2js": "^0.4.16",
-    "yeoman-generator": "^0.21.1",
-    "yosay": "^1.0.2",
+    "yosay": "^1.0.0",
+    "raml-1-parser": "^1.1.8",
     "validate-npm-package-name": "^2.2.2"
   },
   "devDependencies": {
+    "yeoman-test": "^1.0.0",
     "yeoman-assert": "^2.0.0",
-    "eslint-config-xo-space": "^0.7.0",
+    "eslint": "^3.1.1",
+    "eslint-config-xo-space": "^0.15.0",
     "gulp": "^3.9.0",
-    "gulp-eslint": "^1.0.0",
+    "gulp-eslint": "^3.0.1",
     "gulp-exclude-gitignore": "^1.0.0",
-    "gulp-istanbul": "^0.10.3",
-    "gulp-mocha": "^2.0.0",
+    "gulp-line-ending-corrector": "^1.0.1",
+    "gulp-istanbul": "^1.0.0",
+    "gulp-mocha": "^3.0.1",
     "gulp-plumber": "^1.0.0",
     "gulp-nsp": "^2.1.0"
   },
@@ -28,34 +36,11 @@
     "extends": "xo-space",
     "env": {
       "mocha": true
-    },
-    "rules": {
-      "space-before-function-paren": [
-        2,
-        {
-          "anonymous": "never",
-          "named": "never"
-        }
-      ],
-      "object-curly-spacing": [
-        2,
-        "always"
-      ]
     }
-  },
-  "scripts": {
-    "prepublish": "gulp prepublish",
-    "test": "gulp"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/openT2T/generator-opent2t.git"
+    "url": "https://github.com/opent2t/generator-opent2t.git"
   },
-  "author": "",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/openT2T/generator-opent2t/issues"
-  },
-  "homepage": "https://github.com/openT2T/generator-opent2t#readme",
-  "description": "Yeoman generator for an Open Translators to Things translator"
+  "license": "MIT"
 }

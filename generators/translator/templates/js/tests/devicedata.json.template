@@ -1,0 +1,9 @@
+{   "base_state" :
+    {   
+        // Add device data here.
+    },
+    "test_data" :
+    {
+        // Add test data here.
+    }
+}

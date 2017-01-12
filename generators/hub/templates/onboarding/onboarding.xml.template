@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://standards.freedesktop.org/dbus/introspect-1.0.dtd"[]>
+<!--  This is the metadata for a category of things that are connected via the <%- props.hub.friendlyName %> Hub. -->
+<node>
+    <interface name="org.opent2t.onboarding.<%- props.hub.lowerName %>hub">
+        <!-- Defines the metadata required to start onboarding.
+             These input parameters are unique to a particular device type that supports this onboarding type,
+             e.g. auth URLs, RF bands, regular expressions to find the device on a common bus, etc. -->
+        <method name="onboard">
+            <% for (input in props.devInputs) { %><arg name="<%= props.devInputs[input].name %>" type="<%= props.devInputs[input].shortType %>" direction="in" />
+            <% } %><% for (input in props.userInputs) { %><arg name="<%= props.userInputs[input].name %>" type="<%= props.userInputs[input].shortType %>" direction="in" />
+            <% } %>
+        </method>
+    </interface>
+</node>

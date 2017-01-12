@@ -1,0 +1,28 @@
+{
+   "name": "opent2t-onboarding-org-opent2t-onboarding-<%- props.hub.lowerName %>hub",
+   "version": "0.0.1",
+   "description": "Onboarding for <%- props.hub.friendlyName %>",
+   "license": "MIT",
+   "main": "thingOnboarding.js",
+   "files": [
+     "thingOnboarding.js",
+     "common.js",
+     "package.json"
+   ],
+   "repository": {
+     "type": "git",
+     "url": "githttps://github.com/openT2T/onboarding.git"
+   },
+   "bugs": {
+     "url": "https://github.com/openT2T/onboarding/issues"
+   },
+   "homepage": "https://github.com/openT2T/onboarding#readme",
+   "dependencies": {
+     "request": "^2.74.0",
+     "request-promise": "^4.1.1",
+     "opent2t": "^1.0.1"
+   },
+   "devDependencies": {
+     "ava": "^0.15.2"
+   }
+ }
